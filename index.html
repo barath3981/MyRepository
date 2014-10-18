@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html ng-app="event">
+	<head>
+		<title>Event Creation Form</title>
+		
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/styles.css" rel="stylesheet">
+		<link href="css/toaster.css" rel="stylesheet">
+		
+		<script src="js/angular.min.js"></script>
+		<script src="js/ui-bootstrap-tpls-0.11.0.js"></script>
+	  	<script src='js/angular-messages.js'></script>
+	  	<script src='js/toaster.js'></script>
+	  	<!--<script src="js/angular-animate.js"></script>-->
+	  	<script src="js/dates.js"></script>
+	  	
+	</head>
+	<body ng-controller="Controller">
+	<toaster-container toaster-options="{'time-out': 3000}"></toaster-container>
+		<h1 align="center"><small>Event Creation Form</small></h1><br/>	
+		<form name="myForm" class="form-horizontal" role="form">
+		    <div ng-model="save_message" id="save_message" style="border: #04b71f" ng-show="showMessage" class="save_message">{{save_message}}</div>
+			
+			<!--For note-->
+			<div class="form-group">
+		   		<label class="col-sm-2 control-label">Note</label>
+			    <div class="col-sm-10">
+			      <p class="text-error">Items marked with <span style="color:red">*</span> are required.</p>
+			    </div>
+		  	</div>
+			
+			<!--Title Field-->
+		  	<div class="form-group">
+			    <label class="col-sm-2 control-label">Title<span style="color:red"> *</span></label>
+			    <div class="col-sm-10">
+					<input 
+						type="text"
+						name="title"
+						id="title"
+						class="form-control"
+						ng-model="title"
+						ng-minlength="3"
+						placeholder="Enter Title"
+						style="width: 55%; text-transform: capitalize;"
+						required >
+					</input>
+					<div
+						class='title_msg'
+						ng-messages='myForm.title.$error'
+						ng-messages-include='message.html' >
+					</div>
+			    </div>			
+		  	</div>
+		  
+			<!--Start Date-->
+			<div class="form-group">
+				<label for="inputSdate" class="col-sm-2 control-label">Start Date<span style="color:red"> *</span></label>
+				<div class="col-sm-5">
+					<p class="input-group">
+						<input 
+							type="text" 
+							class="form-control" 
+							id="inputSdate"
+							datepicker-popup="dd/MM/yyyy"
+							name="sdate"
+							ng-model="SDate"
+							is-open="Sopened"
+							min-date="minDate"
+							max-date="EDate"
+							close-text="Close"
+							placeholder="Start Date" 
+							readonly="true"
+							ng-change="CheckDate()"
+							style="background-color: white"
+							required />	
+						<span class="input-group-btn">
+							<img src="images/cal.png" ng-click="Sopen($event)" style="height:34px; cursor: pointer;"></img>
+						</span>
+					</p>
+					<div class='formMessage' ng-messages='myForm.sdate.$error' ng-messages-include='message.html'>
+				</div>
+				</div>
+			</div>
+		  
+			<!--End Date-->
+			<div class="form-group">
+				<label for="inputSdate" class="col-sm-2 control-label">End Date<span style="color:red"> *</span></label>
+				<div class="col-sm-5">
+					<p class="input-group">
+						<input 
+							name="edate"
+							type="text" 
+							class="form-control" 
+							id="inputEdate" 
+							datepicker-popup="dd/MM/yyyy"
+							ng-model="EDate"
+							is-open="Eopened"
+							min-date="SDate || minDate"
+							close-text="Close"
+							show-weeks="true"
+							placeholder="End Date"
+							readonly="true"
+							style="background-color: white"
+							required />
+						<span class="input-group-btn">
+							<img src="images/cal.png" ng-click="Eopen($event)" style="height:34px; cursor: pointer;"/>
+						</span>
+					</p>
+				<div class='formMessage' ng-messages='myForm.edate.$error' ng-messages-include='message.html'>
+				</div>
+				</div>
+			</div>
+		  
+			<!--Text Area-->
+			<div class="form-group">
+				<label for="inputDesc" class="col-sm-2 control-label">Description</label>
+				<div class="col-sm-10">
+					<textarea 
+						type="textarea"
+						ng-model="message"
+						maxlength="150"
+						class="form-control"
+						id="inputArea"
+						style="height:100px; width:55%;" ></textarea>
+					<p>Number of characters left: <span ng-bind="left()"></span></p>
+				</div>
+			</div>
+			
+			<!--Check box for Enable Reminder-->
+			<div class="form-group">
+				<div align="left">
+					<label>
+						<input type="checkbox" ng-model="chk_rem" style="margin-left: 190px"> Enable Reminder </input>
+					</label>
+				</div><br/>
+				
+				<!--Check box for Enable Guest List-->
+				<div align="left">
+					<label>
+						<input type="checkbox" ng-model="chk_gust" style="margin-left: 190px"> Enable Guest List </input>
+					</label>
+				</div>
+			</div>
+			
+			<!--Radios buttons for sending-->
+			<div class="form-group">
+			<div align="left">
+				<label>
+					<input 
+						type="radio"
+						name="name_radio" 
+						id="id_send_now"
+						ng-model="mdl_send"
+						value="val_now"
+						ng-click="setLaterDateNull()"
+						style="margin-left: 250px" /> Send it now
+				</label>
+			</div>
+			<div align="left">
+				<label>
+					<input 
+						type="radio"
+						name="name_radio" 
+						id="id_send_later"
+						ng-model="mdl_send" 
+						value="val_later"
+						style="margin-left: 250px" /> Send it later
+				</label>
+				<div class="col-sm-0">
+					<p class="input-group">
+					<input 
+						type="text" 
+						name="ldate"
+						class="form-control" 
+						ng-show="isShown('val_later')" 
+						id="inputLdate" 
+						datepicker-popup="dd/MM/yyyy"
+						is-open="Lopened"
+						min-date="minDate"
+						max-date="SDate"
+						ng-model="LDate"
+						close-text="Close"
+						show-weeks="true"
+						placeholder="Later Date"
+						ng-required="true"
+						style="background-color: white; margin-left: 300px; width: 400px" />
+					<span class="col-sm-0">
+					<img  
+						ng-show="isShown('val_later')"
+						src="images/cal.png"
+						ng-click="Latr_open($event)"
+						style="height:34px; cursor: pointer"/>
+					</span>
+					</p>
+					<div 
+						class='formMessage'
+						ng-show="isShown('val_later')"
+						ng-messages='myForm.ldate.$error'
+						ng-messages-include='message.html'
+						style="margin-left: 300px">
+					</div>
+				</div>
+			</div>
+			</div>
+			
+			<!--Radios buttons for sending-->
+			
+			<!--Radio button for send it now-->
+			<!--<div class="form-group">
+				<label class="col-sm-4 control-label">
+					<input type="radio" name="opt" ng-model="opt_send_later" checked=""> Send it later 
+				</label>
+			</div>-->
+			
+			<!--For Save button-->
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-8">
+					<div ng-switch on="myForm.title.$valid &&
+						myForm.sdate.$valid &&
+						myForm.edate.$valid &&
+						(isShown('val_now')==true ||
+						(isShown('val_later')==true && myForm.ldate.$valid)) ">
+						<button 
+							type="submit" 
+							class="btn btn-danger btn-lg" 
+							ng-switch-when="false"
+							ng-disabled="!myForm.title.$valid ||
+								!myForm.sdate.$valid ||
+								!myForm.edate.$valid ||
+								(isShown('val_now')==false ||
+								(isShown('val_later')==false || !myForm.ldate.$valid)) "
+							>Save</button>
+						<button 
+							type="submit" 
+							class="btn btn-success btn-lg" 
+							ng-click="SaveData()"
+							ng-switch-when="true" >Save</button>
+					</div>
+				</div>
+			</div>
+			
+			<!--For table-->
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Saved data</label>
+				<div class="col-md-8">
+					<table class="table table-bordered" style="width: 100%">
+						<tr>
+							<th>Title</th>
+							<th>Start Date</th>
+							<th>End Date</th>
+							<th>Description</th>
+							<th>Enable Reminder</th>
+							<th>Enable GuestList</th>
+							<th>Sending time</th>
+							<th>Remove</th>
+						</tr>
+						<tr ng-repeat="item in items">
+							<td><span ng-bind="item.ETitle"></span></td>
+							<td><span ng-bind="item.Sdate"></span></td>
+							<td><span ng-bind="item.Edate"></span></td>
+							<td><span ng-bind="item.Description"></span></td>
+							<td><span ng-bind="item.Enbl_Rem"></span></td>
+							<td><span ng-bind="item.Enbl_Gust"></span></td>
+							<td><span ng-bind="item.Send_Option"></span></td>
+							<td><img src="images/delete.png" style="cursor: pointer;" ng-click="removeEvent($index)"/></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</form>
+	</body>
+</html>
